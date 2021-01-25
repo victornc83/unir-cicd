@@ -9,13 +9,14 @@ spec:
   containers:
   - name: busybox
     image: busybox
-    workingDir: /tmp
-    command: ["/bin/cat"]
+    tty: true
+    command:
+    - "cat"
   - name: docker
     image: docker
     tty: true
-    workingDir: /tmp
-    command: ["/bin/cat"]
+    command:
+    - "cat"
     volumeMounts:
     - name: dockersock
       mountPath: "/var/run/docker.sock"
