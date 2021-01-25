@@ -51,15 +51,15 @@ pipeline {
 
     post {
         success {
-            emailext subject: "Pipeline successful", to: "victornc83@gmail.com"
+            emailext subject: "Pipeline successful", body:"Todo fue OK.", to: "victornc83@gmail.com"
             cleanWs()
         }
         unstable {
-            emailext subject: "Pipeline tests not successful", to: "victornc83@gmail.com"
+            emailext subject: "Pipeline tests not successful", body:"La ejecución fue inestable.",to: "victornc83@gmail.com"
             cleanWs()
         }
         failure {
-            emailext subject: "Pipeline error", to: "victornc83@gmail.com"
+            emailext subject: "Pipeline error", body: "Algo fue muy mal!!" ,to: "victornc83@gmail.com"
             cleanWs()
         }
     }
