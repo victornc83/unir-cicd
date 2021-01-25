@@ -4,9 +4,9 @@ podTemplate(containers: [
     ]) {
     node (POD_LABEL) {
         withEnv([
-            AN_ACCESS_KEY = credentials('my-predefined-secret-text'),
-            PULL_REQUEST = "pr-${env.CHANGE_ID}",
-            IMAGE_TAG = "${env.PULL_REQUEST}"
+            "AN_ACCESS_KEY=myPassword",
+            "PULL_REQUEST='pr-${env.CHANGE_ID}'",
+            "IMAGE_TAG='${env.PULL_REQUEST}'"
         ]){
                 try{
                     stage('Summary') {
