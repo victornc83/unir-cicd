@@ -26,7 +26,7 @@ podTemplate(containers: [
                 }
             }
         }catch(err){
-            throw new Exception("Error: +err)
+            throw new Exception("Error: "+err)
         }finally{
             cleanWs()
         }                            
