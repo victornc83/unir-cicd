@@ -13,7 +13,7 @@ podTemplate(containers: [
                         container('busybox') {
                           sh 'echo foo'
                           sh script: """
-                                echo "GIT_BRANCH: ${GIT_BRANCH}"
+                                echo "GIT_BRANCH: ${BRANCH_NAME}"
                                 echo "PULL_REQUEST: ${PULL_REQUEST}"
                             """, label: "Details summary"
                         }
