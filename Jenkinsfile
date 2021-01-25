@@ -1,96 +1,34 @@
-pipeline {
-    agent {
-        kubernetes {
-          yaml '''
-    metadata:
-      namespace: default
-      labels:
-        some-label: some-label-value
-        class: KubernetesDeclarativeAgentTest
-    spec:
-      containers:
-      - name: jnlp
-        env:
-        - name: CONTAINER_ENV_VAR
-          value: jnlp
-      - name: maven
-        image: maven:3.3.9-jdk-8-alpine
-        command:
-        - cat
-        tty: true
-        env:
-        - name: CONTAINER_ENV_VAR
-          value: maven
-      - name: docker
-        image: docker
-        command:
-        - cat
-        tty: true
-        env:
-        - name: CONTAINER_ENV_VAR
-          value: docker
-    '''
-        }
-    }
-
-    options {
-        timeout(time: 1, unit: 'HOURS')
-    }
-
-    triggers {
-        cron('H */1 * * 1-5')
-        pollSCM('H/10 * * * 1-5')
-    }
-
-    environment {
-        AN_ACCESS_KEY = credentials('my-predefined-secret-text')
-        PULL_REQUEST = "pr-${env.CHANGE_ID}"
-        IMAGE_TAG = "${env.PULL_REQUEST}"
-    }
-
-    stages {
-        stage('Summary') {
-            steps {
-                sh script: """
-                    echo "GIT_BRANCH: ${GIT_BRANCH}"
-                    echo "PULL_REQUEST: ${PULL_REQUEST}"
-                """, label: "Details summary"
-            }
-        }
-        stage('Deploy') {
-            agent {
-                label "docker"
-            }
-            when { 
-                beforeAgent true
-                allOf {
-                    equals expected: 'master', actual: BRANCH_NAME
-                    equals expected: 'SUCCESS', actual: currentBuild.currentResult
+podTemplate(containers: [
+        containerTemplate(name: 'busybox', image: 'busybox', ttyEnabled: true, command: '/bin/cat'),
+        containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: '/bin/cat')
+    ]) {
+    node (POD_LABEL) {
+        withEnv([
+            AN_ACCESS_KEY = credentials('my-predefined-secret-text'),
+            PULL_REQUEST = "pr-${env.CHANGE_ID}",
+            IMAGE_TAG = "${env.PULL_REQUEST}"
+        ]){
+        try{
+            stage('Summary') {
+                container('busybox') {
+                  sh 'echo foo'
+                  sh script: """
+                        echo "GIT_BRANCH: ${GIT_BRANCH}"
+                        echo "PULL_REQUEST: ${PULL_REQUEST}"
+                    """, label: "Details summary"
                 }
             }
-            steps {
-                unstash name: "DIST"
-                sh "docker build -t app:${env.GIT_COMMIT} ."
-                sh "docker push app:${env.GIT_COMMIT}"
-                script {
+            stage('Deploy') {
+                container('docker'){
+                    sh "docker build -t app:${env.GIT_COMMIT} ."
+                    sh "docker push app:${env.GIT_COMMIT}"
                     echo "Esto es un test"
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            emailext subject: "Pipeline successful", body:"Todo fue OK.", to: "victornc83@gmail.com"
+        }catch(err){
+            throw new Exception("Error: +err)
+        }finally{
             cleanWs()
-        }
-        unstable {
-            emailext subject: "Pipeline tests not successful", body:"La ejecución fue inestable.",to: "victornc83@gmail.com"
-            cleanWs()
-        }
-        failure {
-            emailext subject: "Pipeline error", body: "Algo fue muy mal!!" ,to: "victornc83@gmail.com"
-            cleanWs()
-        }
+        }                            
     }
 }
