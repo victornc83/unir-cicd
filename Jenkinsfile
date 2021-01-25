@@ -1,6 +1,36 @@
 pipeline {
     agent {
-        label 'docker'
+        kubernetes {
+          yaml '''
+    metadata:
+      namespace: kubernetes-plugin-test-overridden-namespace
+      labels:
+        some-label: some-label-value
+        class: KubernetesDeclarativeAgentTest
+    spec:
+      containers:
+      - name: jnlp
+        env:
+        - name: CONTAINER_ENV_VAR
+          value: jnlp
+      - name: maven
+        image: maven:3.3.9-jdk-8-alpine
+        command:
+        - cat
+        tty: true
+        env:
+        - name: CONTAINER_ENV_VAR
+          value: maven
+      - name: docker
+        image: docker
+        command:
+        - cat
+        tty: true
+        env:
+        - name: CONTAINER_ENV_VAR
+          value: docker
+    '''
+        }
     }
 
     options {
