@@ -1,8 +1,31 @@
-podTemplate(containers: [
-        containerTemplate(name: 'busybox', image: 'busybox', ttyEnabled: true, command: '/bin/cat'),
-        containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: '/bin/cat')
-    ]) {
-    node (POD_LABEL) {
+def yaml="""
+apiVersion: v1
+kind: Pod
+spec:
+  imagePullSecrets: 
+  - name: botjenkins
+  securityContext:
+    fsGroup: 0
+  containers:
+  - name: busybox
+    image: busybox
+    workingDir: /tmp
+    command: '/bin/cat'
+  - name: docker
+    image: docker
+    tty: true
+    workingDir: /tmp
+    command: '/bin/cat'
+    volumeMounts:
+    - name: dockersock
+      mountPath: "/var/run/docker.sock"
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+podTemplate(showRawYaml: false, yaml: yaml){
+    node(POD_LABEL){
         withEnv([
             "AN_ACCESS_KEY=myPassword",
             "IMAGE_TAG='${env.BUILD_ID}'"
