@@ -10,6 +10,7 @@ podTemplate(containers: [
                 try{
                     stage('Summary') {
                         container('busybox') {
+                          checkout scm
                           sh 'env'
                           sh script: """
                                 echo "GIT_BRANCH: ${JOB_NAME}"
