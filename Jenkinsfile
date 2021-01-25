@@ -5,23 +5,22 @@ podTemplate(containers: [
     node (POD_LABEL) {
         withEnv([
             "AN_ACCESS_KEY=myPassword",
-            "PULL_REQUEST='pr-${env.CHANGE_ID}'",
-            "IMAGE_TAG='${env.PULL_REQUEST}'"
+            "IMAGE_TAG='${env.BUILD_ID}'"
         ]){
                 try{
                     stage('Summary') {
                         container('busybox') {
                           sh 'env'
                           sh script: """
-                                echo "GIT_BRANCH: ${BRANCH_NAME}"
-                                echo "PULL_REQUEST: ${PULL_REQUEST}"
+                                echo "GIT_BRANCH: ${JOB_NAME}"
+                                echo "PULL_REQUEST: ${IMAGE_TAG}"
                             """, label: "Details summary"
                         }
                     }
                     stage('Deploy') {
                         container('docker'){
-                            sh "docker build -t app:${env.GIT_COMMIT} ."
-                            sh "docker push app:${env.GIT_COMMIT}"
+                            sh "docker build -t app:${IMAGE_TAG} ."
+                            sh "docker push app:${IMAGE_TAG}"
                             echo "Esto es un test"
                         }
                     }
