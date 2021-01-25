@@ -8,27 +8,28 @@ podTemplate(containers: [
             PULL_REQUEST = "pr-${env.CHANGE_ID}",
             IMAGE_TAG = "${env.PULL_REQUEST}"
         ]){
-        try{
-            stage('Summary') {
-                container('busybox') {
-                  sh 'echo foo'
-                  sh script: """
-                        echo "GIT_BRANCH: ${GIT_BRANCH}"
-                        echo "PULL_REQUEST: ${PULL_REQUEST}"
-                    """, label: "Details summary"
+                try{
+                    stage('Summary') {
+                        container('busybox') {
+                          sh 'echo foo'
+                          sh script: """
+                                echo "GIT_BRANCH: ${GIT_BRANCH}"
+                                echo "PULL_REQUEST: ${PULL_REQUEST}"
+                            """, label: "Details summary"
+                        }
+                    }
+                    stage('Deploy') {
+                        container('docker'){
+                            sh "docker build -t app:${env.GIT_COMMIT} ."
+                            sh "docker push app:${env.GIT_COMMIT}"
+                            echo "Esto es un test"
+                        }
+                    }
+                }catch(err){
+                    throw new Exception("Error: "+err)
+                }finally{
+                    cleanWs()
                 }
-            }
-            stage('Deploy') {
-                container('docker'){
-                    sh "docker build -t app:${env.GIT_COMMIT} ."
-                    sh "docker push app:${env.GIT_COMMIT}"
-                    echo "Esto es un test"
-                }
-            }
-        }catch(err){
-            throw new Exception("Error: "+err)
-        }finally{
-            cleanWs()
-        }                            
+        }
     }
 }
