@@ -45,8 +45,7 @@ podTemplate(showRawYaml: false, yaml: yaml){
                     stage('Deploy') {
                         container('docker'){
                             sh "docker build -t victornc83/unir-app:${IMAGE_TAG} ."
-                            sh "docker push app:${IMAGE_TAG}"
-                            echo "Esto es un test"
+                            sh "docker push victornc83/unir-app:${IMAGE_TAG}"
                         }
                     }
                 }catch(err){
