@@ -2,8 +2,6 @@ def yaml="""
 apiVersion: v1
 kind: Pod
 spec:
-  imagePullSecrets: 
-  - name: botjenkins
   securityContext:
     fsGroup: 0
   containers:
