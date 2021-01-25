@@ -11,7 +11,7 @@ podTemplate(containers: [
                 try{
                     stage('Summary') {
                         container('busybox') {
-                          sh 'echo foo'
+                          sh 'env'
                           sh script: """
                                 echo "GIT_BRANCH: ${BRANCH_NAME}"
                                 echo "PULL_REQUEST: ${PULL_REQUEST}"
