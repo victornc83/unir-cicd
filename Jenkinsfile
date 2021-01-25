@@ -3,7 +3,7 @@ pipeline {
         kubernetes {
           yaml '''
     metadata:
-      namespace: kubernetes-plugin-test-overridden-namespace
+      namespace: default
       labels:
         some-label: some-label-value
         class: KubernetesDeclarativeAgentTest
